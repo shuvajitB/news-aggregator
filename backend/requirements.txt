@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+feedparser
+requests
+fastapi[all]
+sqlalchemy
