@@ -18,9 +18,10 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const setLoggedIn = (status: boolean, token?: string, email?: string) => {
-    if (status && token !== undefined && email) {
-      setUser({ token, email });
+  const setLoggedIn = (status: boolean, token = '', email = '') => {
+    if (status && email) {
+      const userData: User = { token, email };
+      setUser(userData);
       if (typeof window !== 'undefined') {
         localStorage.setItem('userToken', token);
         localStorage.setItem('userEmail', email);
@@ -34,7 +35,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Load from localStorage on first load
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('userToken') || '';
