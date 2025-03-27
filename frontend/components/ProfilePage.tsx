@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import { useRouter } from 'next/navigation';
-const router = useRouter();
+//const router = useRouter();
 
 interface Bookmark {
   id: number;
@@ -29,6 +29,7 @@ interface NewsArticle {
 const categories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [userEmail, setUserEmail] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
 
