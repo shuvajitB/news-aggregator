@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Use PostgreSQL in production, SQLite as fallback
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:ApRaqbkoFVEkUEpremQLWbhqxJyyxKGB@postgres.railway.internal:5432/railway")
+DATABASE_URL = os.getenv("DATABASE_URL") #"postgresql://postgres:ApRaqbkoFVEkUEpremQLWbhqxJyyxKGB@postgres.railway.internal:5432/railway"
 
 # Create engine
 if DATABASE_URL.startswith("sqlite"):
