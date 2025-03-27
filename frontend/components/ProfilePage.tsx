@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
 import { useRouter } from 'next/navigation';
-//const router = useRouter();
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 interface Bookmark {
   id: number;
@@ -24,12 +24,12 @@ interface NewsArticle {
   title: string;
   url: string;
   image: string;
+  category?: string;
 }
 
 const categories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
 
 export default function ProfilePage() {
-  const router = useRouter();
   const [userEmail, setUserEmail] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -41,7 +41,6 @@ export default function ProfilePage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Set theme on initial load
   useEffect(() => {
     const theme = localStorage.getItem('theme');
     if (theme === 'dark') {
@@ -51,7 +50,6 @@ export default function ProfilePage() {
     }
   }, []);
 
-  // SSR-safe mount + user email
   useEffect(() => {
     setHasMounted(true);
     if (typeof window !== 'undefined') {
@@ -63,44 +61,46 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!hasMounted || !userEmail) return;
 
-    // Preferences
+    // Fetch Preferences
     axios
-      .get<{ preferences: { categories: string[] } }>(`http://localhost:8000/preferences?email_phone=${userEmail}`)
+      .get<{ preferences: { categories: string[] } }>(
+        `${API_BASE_URL}/preferences?email_phone=${userEmail}`
+      )
       .then((res) => {
         const prefs = res.data.preferences.categories || [];
         setPreferences({ categories: prefs });
         setSelectedCategories(prefs);
         localStorage.setItem('userPreferences', JSON.stringify({ categories: prefs }));
 
-        // Fetch preferred news
+        // Fetch Preferred News
         Promise.all(
           prefs.map((cat) =>
-            fetch(`http://localhost:8000/news?page=1&page_size=6&category=${cat}`)
+            fetch(`${API_BASE_URL}/news?page=1&page_size=6&category=${cat}`)
               .then((res) => res.json())
-              .then((data) => {
-                return data.articles?.map((article: any) => ({
+              .then((data) =>
+                (data.articles || []).map((article: any) => ({
                   ...article,
-                  category: cat  // ✅ attach category from request
-                })) || [];
-              })
+                  category: cat
+                }))
+              )
           )
         ).then((allArticles) => {
           const combined = allArticles.flat();
           const unique = Array.from(new Map(combined.map((a) => [a.url, a])).values());
           setPreferredNews(unique);
-        });        
+        });
       })
       .catch((err) => console.error('Failed to fetch preferences:', err));
 
-    // Bookmarks
+    // Fetch Bookmarks
     axios
-      .get<Bookmark[]>(`http://localhost:8000/bookmark/list?email_phone=${userEmail}`)
+      .get<Bookmark[]>(`${API_BASE_URL}/bookmark/list?email_phone=${userEmail}`)
       .then((res) => setBookmarks(res.data))
       .catch((err) => console.error('Failed to fetch bookmarks:', err));
 
-    // History
+    // Fetch History
     axios
-      .get<HistoryItem[]>(`http://localhost:8000/history?email_phone=${userEmail}`)
+      .get<HistoryItem[]>(`${API_BASE_URL}/history?email_phone=${userEmail}`)
       .then((res) => setHistory(res.data || []))
       .catch((err) => console.error('Failed to fetch history:', err));
   }, [hasMounted, userEmail]);
@@ -114,31 +114,30 @@ export default function ProfilePage() {
   const savePreferences = () => {
     if (!userEmail) return;
     axios
-      .post(`http://localhost:8000/preferences`, {
+      .post(`${API_BASE_URL}/preferences`, {
         email_phone: userEmail,
-        categories: selectedCategories,
+        categories: selectedCategories
       })
       .then(() => {
-        // Optional: store preferences in localStorage (used by homepage)
-        localStorage.setItem('userPreferences', JSON.stringify({ categories: selectedCategories }));
-      
-        // ✅ Redirect to homepage /news
+        localStorage.setItem(
+          'userPreferences',
+          JSON.stringify({ categories: selectedCategories })
+        );
         window.location.href = '/news';
-
-      })      
+      })
       .catch(() => alert('Failed to save preferences.'));
   };
 
   const deleteBookmark = (id: number) => {
     axios
-      .delete(`http://localhost:8000/bookmarks/${id}?email_phone=${userEmail}`)
+      .delete(`${API_BASE_URL}/bookmarks/${id}?email_phone=${userEmail}`)
       .then(() => setBookmarks(bookmarks.filter((b) => b.id !== id)))
       .catch((err) => console.error('Failed to delete bookmark:', err));
   };
 
   const deleteHistory = (id: number) => {
     axios
-      .delete(`http://localhost:8000/history/${id}?email_phone=${userEmail}`)
+      .delete(`${API_BASE_URL}/history/${id}?email_phone=${userEmail}`)
       .then(() => setHistory(history.filter((h) => h.id !== id)))
       .catch((err) => console.error('Failed to delete history:', err));
   };
@@ -203,7 +202,10 @@ export default function ProfilePage() {
           <h2 className="text-xl font-semibold mb-4">📰 Preferred News Feed</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {preferredNews.map((article, index) => (
-              <div key={index} className="border rounded-lg p-4 shadow-sm hover:shadow transition dark:border-gray-700">
+              <div
+                key={index}
+                className="border rounded-lg p-4 shadow-sm hover:shadow transition dark:border-gray-700"
+              >
                 <img
                   src={article.image}
                   alt={article.title}
@@ -229,8 +231,16 @@ export default function ProfilePage() {
         {bookmarks.length > 0 ? (
           <ul className="space-y-3">
             {bookmarks.map((bookmark) => (
-              <li key={bookmark.id} className="flex justify-between items-center border-b pb-2 dark:border-gray-700">
-                <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline dark:text-blue-400">
+              <li
+                key={bookmark.id}
+                className="flex justify-between items-center border-b pb-2 dark:border-gray-700"
+              >
+                <a
+                  href={bookmark.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline dark:text-blue-400"
+                >
                   {bookmark.title}
                 </a>
                 <button
@@ -253,8 +263,16 @@ export default function ProfilePage() {
         {history.length > 0 ? (
           <ul className="space-y-3">
             {history.map((item) => (
-              <li key={item.id} className="flex justify-between items-center border-b pb-2 dark:border-gray-700">
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-gray-800 underline dark:text-gray-200">
+              <li
+                key={item.id}
+                className="flex justify-between items-center border-b pb-2 dark:border-gray-700"
+              >
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-800 underline dark:text-gray-200"
+                >
                   {item.title}
                 </a>
                 <button
