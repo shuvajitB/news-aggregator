@@ -10,6 +10,9 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
+// ✅ Get API base URL from environment variable
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function AuthModal({ type, onClose }: AuthModalProps) {
   const { setLoggedIn } = useUserContext();
   const router = useRouter();
@@ -20,9 +23,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleAuth = async () => {
-    const url = type === 'register'
-      ? 'http://localhost:8000/register'
-      : 'http://localhost:8000/login';
+    const url = `${API_BASE_URL}/${type}`; // ✅ Dynamic backend URL
 
     try {
       const res = await fetch(url, {
@@ -40,11 +41,10 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
         return;
       }
 
-      // Since backend doesn't return token/email yet, use emailPhone
       setLoggedIn(true, '', emailPhone);
       onClose();
       router.push('/news');
-    } catch (err) {
+    } catch (e) {
       setError('Server Error!');
     }
   };
@@ -56,7 +56,9 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
           <Newspaper size={50} className="text-white" />
         </div>
         <div className="bg-white rounded-2xl shadow-lg p-8 w-96 text-center relative">
-          <h2 className="text-2xl font-bold mb-4 text-black">{type === 'register' ? 'Join Now' : 'Welcome Back!'}</h2>
+          <h2 className="text-2xl font-bold mb-4 text-black">
+            {type === 'register' ? 'Join Now' : 'Welcome Back!'}
+          </h2>
 
           <input
             type="text"
@@ -65,9 +67,10 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
             onChange={(e) => setEmailPhone(e.target.value)}
             className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
           />
+
           <div className="relative mb-4">
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -78,7 +81,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
               className="absolute right-3 top-3 text-sm text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
 
