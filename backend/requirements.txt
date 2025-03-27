@@ -1,6 +1,8 @@
-fastapi
-uvicorn
-feedparser
-requests
 fastapi[all]
+uvicorn[standard]
 sqlalchemy
+psycopg2-binary
+python-dotenv
+passlib[bcrypt]
+python-multipart
+requests
