@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useUserContext } from '@components/UserContext';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useUserContext } from './UserContext';
 import { useRouter } from 'next/navigation';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaBookmark } from 'react-icons/fa';
 import { Share2, Newspaper, ChevronDown } from 'lucide-react';
+import Link from 'next/link';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface Article {
   title: string;
@@ -14,20 +17,19 @@ interface Article {
 }
 
 export default function NewsList() {
-  const { user, setLoggedIn } = useUserContext();
+  const { setLoggedIn } = useUserContext();
   const router = useRouter();
 
   const [articles, setArticles] = useState<Article[]>([]);
+  const [bookmarks, setBookmarks] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [preferredMode, setPreferredMode] = useState(false); // ✅ Preferred Mode
+  const [preferredMode, setPreferredMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [darkMode, setDarkMode] = useState(false);
-  const [bookmarks, setBookmarks] = useState<Article[]>([]);
   const [viewBookmarks, setViewBookmarks] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const articlesPerLoad = 6;
 
   const [userPreferences, setUserPreferences] = useState<string[]>([]);
   const [userEmail, setUserEmail] = useState('');
@@ -36,6 +38,8 @@ export default function NewsList() {
   const [filterCategories, setFilterCategories] = useState<string[]>([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const allCategories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
+
+  const articlesPerLoad = 6;
 
   useEffect(() => {
     setHasMounted(true);
@@ -47,22 +51,20 @@ export default function NewsList() {
       if (storedFilters) {
         setFilterCategories(JSON.parse(storedFilters));
       }
-    }
-  }, []);
 
-  useEffect(() => {
-    const prefs = localStorage.getItem('userPreferences');
-    if (prefs) {
-      const { categories } = JSON.parse(prefs);
-      if (categories?.length > 0) {
-        setSelectedCategory(categories[0]);
+      const prefs = localStorage.getItem('userPreferences');
+      if (prefs) {
+        const { categories } = JSON.parse(prefs);
+        if (categories?.length > 0) {
+          setSelectedCategory(categories[0]);
+        }
       }
     }
   }, []);
 
   useEffect(() => {
     if (userEmail) {
-      fetch(`http://localhost:8000/preferences?email_phone=${userEmail}`)
+      fetch(`${API_BASE_URL}/preferences?email_phone=${userEmail}`)
         .then(res => res.json())
         .then(data => setUserPreferences(data.preferences.categories || []))
         .catch(() => setUserPreferences([]));
@@ -78,104 +80,75 @@ export default function NewsList() {
     fetchArticles(1, false);
   };
 
-  const prioritizeArticles = (articlesList: Article[]) => {
-    if (userPreferences.length === 0) return articlesList;
-  
-    const preferred = articlesList.filter(a =>
-      a.category && userPreferences.includes(a.category.toLowerCase())
-    );
-  
-    const others = articlesList.filter(a =>
-      !a.category || !userPreferences.includes(a.category.toLowerCase())
-    );
-  
-    return [...preferred, ...others];
-  };
-  
-
-  const fetchArticles = async (pageNum = 1, append = false) => {
+  const fetchArticles = useCallback(async (pageNum = 1, append = false) => {
     setLoading(true);
-  
+
     try {
       let newArticles: Article[] = [];
-  
-      // ✅ Preferred Mode Fetch
+
       if (preferredMode && userPreferences.length > 0) {
         const fetches = userPreferences.map(cat =>
-          fetch(`http://localhost:8000/news?page=${pageNum}&page_size=${articlesPerLoad}&category=${cat}`)
+          fetch(`${API_BASE_URL}/news?page=${pageNum}&page_size=${articlesPerLoad}&category=${cat}`)
             .then(res => res.json())
             .then(data =>
               (data.articles || []).map((a: Article) => ({
                 ...a,
-                category: cat.toLowerCase(), // ✅ Ensure category is tagged
-                image: a.image || 'https://source.unsplash.com/random' // ✅ Fallback image
+                category: cat,
               }))
             )
             .catch(() => [])
         );
-  
+
         const results = await Promise.all(fetches);
-        const allPreferred = results.flat();
-  
-        // ✅ Remove duplicate articles by URL
-        const uniqueMap = new Map(allPreferred.map(article => [article.url, article]));
-        newArticles = Array.from(uniqueMap.values());
+        newArticles = results.flat();
       } else {
-        // ✅ Regular Fetch
-        let url = `http://localhost:8000/news?page=${pageNum}&page_size=${articlesPerLoad}`;
+        let url = `${API_BASE_URL}/news?page=${pageNum}&page_size=${articlesPerLoad}`;
         const params = [];
-  
         if (selectedCategory) params.push(`category=${selectedCategory}`);
         if (searchTerm) params.push(`query=${searchTerm}`);
         if (params.length > 0) url += `&${params.join('&')}`;
-  
+
         const res = await fetch(url);
         const data = await res.json();
-        newArticles = (data.articles || []).map((a: Article) => ({
-          ...a,
-          image: a.image || 'https://source.unsplash.com/random'
-        }));
+        newArticles = data.articles || [];
       }
-  
-      // ✅ Apply dropdown filter if not preferred mode and no category selected
+
       if (!preferredMode && selectedCategory === '' && filterCategories.length > 0) {
         newArticles = newArticles.filter(article =>
           filterCategories.includes(article.category?.toLowerCase() || '')
         );
       }
-  
-      // ✅ Set Articles
-      setArticles(prev => (append ? [...prev, ...newArticles] : newArticles));
-  
-      // ✅ Control pagination
-      setHasMore(newArticles.length >= articlesPerLoad);
+
+      if (append) {
+        setArticles(prev => [...prev, ...newArticles]);
+      } else {
+        setArticles(newArticles);
+      }
+
+      setHasMore(newArticles.length > 0);
     } catch (err) {
       console.error('Error fetching articles:', err);
-    } finally {
-      setLoading(false);
     }
-  };
-  
-  
+
+    setLoading(false);
+  }, [preferredMode, userPreferences, selectedCategory, searchTerm, filterCategories]);
 
   const handleCategoryChange = (category: string) => {
-    setPreferredMode(false); // ⛔ turn off preferred when selecting category
+    setPreferredMode(false);
     setSelectedCategory(category);
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPreferredMode(false); // ⛔ turn off preferred when searching
+    setPreferredMode(false);
     fetchArticles(1, false);
     setPage(1);
   };
 
   const handleLogout = () => {
     setLoggedIn(false);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userToken');
-    }
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userToken');
     router.push('/');
   };
 
@@ -183,7 +156,7 @@ export default function NewsList() {
     if (!userEmail) return;
     const exists = bookmarks.find(b => b.url === article.url);
     if (exists) return;
-    fetch('http://localhost:8000/bookmark/add', {
+    fetch(`${API_BASE_URL}/bookmark/add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email_phone: userEmail, title: article.title, url: article.url, image: article.image }),
@@ -192,30 +165,30 @@ export default function NewsList() {
 
   const handleReadHistory = (article: Article) => {
     if (!userEmail) return;
-    fetch('http://localhost:8000/history/add', {
+    fetch(`${API_BASE_URL}/history/add`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email_phone: userEmail, title: article.title, url: article.url, image: article.image }),
     });
   };
 
-  const fetchBookmarks = () => {
+  const fetchBookmarks = useCallback(() => {
     if (!userEmail) return;
-    fetch(`http://localhost:8000/bookmark/list?email_phone=${userEmail}`)
+    fetch(`${API_BASE_URL}/bookmark/list?email_phone=${userEmail}`)
       .then(res => res.json())
       .then(data => setBookmarks(data || []));
-  };
+  }, [userEmail]);
 
   useEffect(() => {
     if (userEmail) fetchBookmarks();
-  }, [userEmail]);
+  }, [userEmail, fetchBookmarks]);
 
   useEffect(() => {
     if (userEmail) {
       fetchArticles(1, false);
       setPage(1);
     }
-  }, [selectedCategory, searchTerm, userPreferences, userEmail]);
+  }, [selectedCategory, searchTerm, userPreferences, userEmail, fetchArticles]);
 
   useEffect(() => {
     const handleScroll = () => {
