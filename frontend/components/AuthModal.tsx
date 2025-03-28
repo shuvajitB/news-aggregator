@@ -4,14 +4,21 @@ import React, { useState } from 'react';
 import { useUserContext } from './UserContext';
 import { useRouter } from 'next/navigation';
 import { Newspaper } from 'lucide-react';
+import { EmailStr, date } from 'pydantic';
 
 interface AuthModalProps {
   type: 'login' | 'register';
   onClose: () => void;
 }
 
-// Get API base URL from environment variable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+interface Payload {
+  email_phone: string;
+  password: string;
+  name?: string;
+  dob?: string;  // Assuming dob is handled as a string for simplicity, adjust as necessary
+}
 
 export default function AuthModal({ type, onClose }: AuthModalProps) {
   const { setLoggedIn } = useUserContext();
@@ -19,25 +26,25 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
 
   const [emailPhone, setEmailPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');       // State for name
-  const [dob, setDob] = useState('');         // State for date of birth
+  const [name, setName] = useState('');
+  const [dob, setDob] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleAuth = async () => {
-    const url = `${API_BASE_URL}/${type}`;
+    let payload: Payload = {
+      email_phone: emailPhone,
+      password: password
+    };
+
+    if (type === 'register') {
+      payload.name = name;       // Include name for registration
+      payload.dob = dob;         // Include date of birth for registration
+    }
+
+    const url = `${API_BASE_URL}/${type}`; // Dynamic backend URL
 
     try {
-      const payload = {
-        email_phone: emailPhone,
-        password: password
-      };
-
-      if (type === 'register') {
-        payload.name = name;       // Include name for registration
-        payload.dob = dob;         // Include date of birth for registration
-      }
-
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +75,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
           <h2 className="text-2xl font-bold mb-4 text-black">
             {type === 'register' ? 'Join Now' : 'Welcome Back!'}
           </h2>
-
+          {/* Additional fields for registration */}
           {type === 'register' && (
             <>
               <input
@@ -86,7 +93,6 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
               />
             </>
           )}
-
           <input
             type="text"
             placeholder="Email or Phone"
@@ -94,7 +100,6 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
             onChange={(e) => setEmailPhone(e.target.value)}
             className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
           />
-
           <div className="relative mb-4">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -111,16 +116,13 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-
           {error && <p className="text-red-500 mb-4">{error}</p>}
-
           <button
             onClick={handleAuth}
             className="bg-black text-white px-4 py-2 rounded-full w-full mb-2 hover:bg-gray-800 transition"
           >
             {type === 'register' ? 'Register' : 'Login'}
           </button>
-
           <button
             onClick={onClose}
             className="absolute top-2 right-4 text-gray-500 hover:text-black text-xl"
