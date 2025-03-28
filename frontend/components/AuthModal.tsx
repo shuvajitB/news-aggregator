@@ -2,9 +2,8 @@
 
 import React, { useState } from 'react';
 import { useUserContext } from './UserContext';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router'; // Corrected from 'next/navigation'
 import { Newspaper } from 'lucide-react';
-import { EmailStr, date } from 'pydantic';
 
 interface AuthModalProps {
   type: 'login' | 'register';
@@ -14,10 +13,10 @@ interface AuthModalProps {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface Payload {
-  email_phone: string;
+  email_phone: string; // Using string, validate format in the input or backend
   password: string;
   name?: string;
-  dob?: string;  // Assuming dob is handled as a string for simplicity, adjust as necessary
+  dob?: string;  // Using string to match HTML input date format
 }
 
 export default function AuthModal({ type, onClose }: AuthModalProps) {
@@ -75,7 +74,6 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
           <h2 className="text-2xl font-bold mb-4 text-black">
             {type === 'register' ? 'Join Now' : 'Welcome Back!'}
           </h2>
-          {/* Additional fields for registration */}
           {type === 'register' && (
             <>
               <input
@@ -114,7 +112,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? 'Hide' : 'Show'}
-            </button>
+            </button
           </div>
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
