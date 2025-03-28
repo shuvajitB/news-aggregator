@@ -33,6 +33,12 @@ class UserProfile(BaseModel):
     name: str
     dob: date
 
+# ✅ Request Model for Profile Update
+class UserUpdate(BaseModel):
+    email_phone: str
+    name: str
+    dob: date
+
 # REGISTER ENDPOINT
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -78,3 +84,18 @@ def get_profile(email_phone: str, db: Session = Depends(get_db)):
         "name": user.name,
         "dob": user.dob
     }
+
+# ✅ PROFILE UPDATE ENDPOINT
+@router.put("/profile")
+def update_profile(user_update: UserUpdate, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email_phone == user_update.email_phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.name = user_update.name
+    user.dob = user_update.dob
+
+    db.commit()
+    db.refresh(user)
+
+    return {"message": "Profile updated successfully"}
