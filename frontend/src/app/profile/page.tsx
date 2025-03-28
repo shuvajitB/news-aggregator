@@ -66,22 +66,59 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   };
 
+  const saveProfile = () => {
+    if (!profile) return;
+    setLoading(true);
+    fetch(`${API_BASE_URL}/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to save');
+        setMessage('Profile updated successfully!');
+      })
+      .catch(() => setMessage('Failed to update profile.'))
+      .finally(() => setLoading(false));
+  };
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-center">Your Profile</h2>
 
       {loading && <p className="text-gray-600 mb-2">Loading...</p>}
+      {message && <p className="text-sm text-blue-600 mb-4 text-center">{message}</p>}
 
       {profile && (
         <div className="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
-          <p><strong>Name:</strong> {profile.name}</p>
-          <p><strong>Email:</strong> {profile.email_phone}</p>
-          <p><strong>Date of Birth:</strong> {profile.dob}</p>
+          <label className="block mb-2 font-medium">Name:</label>
+          <input
+            type="text"
+            value={profile.name}
+            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            className="border px-3 py-2 rounded-md w-full mb-4"
+          />
+
+          <label className="block mb-2 font-medium">Date of Birth:</label>
+          <input
+            type="date"
+            value={profile.dob}
+            onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+            className="border px-3 py-2 rounded-md w-full mb-4"
+          />
+
+          <p className="text-sm text-gray-500">Email: {profile.email_phone}</p>
+
+          <button
+            onClick={saveProfile}
+            className="mt-4 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+          >
+            Save Profile
+          </button>
         </div>
       )}
 
       <h3 className="text-xl font-semibold mb-3">Select Preferred Categories</h3>
-      {message && <p className="text-sm text-blue-600 mb-4">{message}</p>}
 
       <div className="flex flex-wrap gap-3 mb-6">
         {categories.map(cat => (
