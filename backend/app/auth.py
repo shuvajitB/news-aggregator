@@ -17,15 +17,21 @@ def get_db():
 
 # Request Model for Registration
 class UserCreate(BaseModel):
-    email_phone: EmailStr  # Using EmailStr for email validation, change as needed
+    email_phone: EmailStr
     password: str
-    name: str  # New field for user's name
-    dob: date  # New field for user's date of birth
+    name: str
+    dob: date
 
 # Request Model for Login
 class UserLogin(BaseModel):
     email_phone: str
     password: str
+
+# ✅ Response Model for Profile
+class UserProfile(BaseModel):
+    email_phone: str
+    name: str
+    dob: date
 
 # REGISTER ENDPOINT
 @router.post("/register")
@@ -38,9 +44,9 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         email_phone=user.email_phone,
         hashed_password=hashed_pw,
-        preferences='',  # This can be modified to include default or empty preferences
-        name=user.name,  # Storing the user's name
-        dob=user.dob     # Storing the user's date of birth
+        preferences='',
+        name=user.name,
+        dob=user.dob
     )
 
     db.add(new_user)
@@ -59,3 +65,16 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Incorrect password!")
 
     return {"message": "Login successful"}
+
+# ✅ PROFILE FETCH ENDPOINT
+@router.get("/profile", response_model=UserProfile)
+def get_profile(email_phone: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email_phone == email_phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "email_phone": user.email_phone,
+        "name": user.name,
+        "dob": user.dob
+    }
