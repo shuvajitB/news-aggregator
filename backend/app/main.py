@@ -10,10 +10,14 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://proud-unity-production.up.railway.app"
+    ],  # ✅ frontend domain
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Include routers
 app.include_router(auth.router)
