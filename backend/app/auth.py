@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app import db, models
 from passlib.hash import bcrypt
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from datetime import date
 
 router = APIRouter()
 
@@ -16,8 +17,10 @@ def get_db():
 
 # Request Model for Registration
 class UserCreate(BaseModel):
-    email_phone: str
+    email_phone: EmailStr  # Using EmailStr for email validation, change as needed
     password: str
+    name: str  # New field for user's name
+    dob: date  # New field for user's date of birth
 
 # Request Model for Login
 class UserLogin(BaseModel):
@@ -32,7 +35,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User already exists!")
 
     hashed_pw = bcrypt.hash(user.password)
-    new_user = models.User(email_phone=user.email_phone, hashed_password=hashed_pw, preferences='')
+    new_user = models.User(
+        email_phone=user.email_phone,
+        hashed_password=hashed_pw,
+        preferences='',  # This can be modified to include default or empty preferences
+        name=user.name,  # Storing the user's name
+        dob=user.dob     # Storing the user's date of birth
+    )
 
     db.add(new_user)
     db.commit()
