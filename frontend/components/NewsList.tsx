@@ -216,7 +216,11 @@ export default function NewsList() {
         </a>
 
         <div className="flex items-center space-x-4">
-          <a href="/profile" className="bg-white text-black px-3 py-1 rounded-full border border-gray-400 shadow-sm hover:bg-gray-200">Profile</a>
+          <a href="/profile" title="Profile">
+          <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-400 text-xl hover:shadow hover:scale-105 transition-all">
+          🐱
+          </div>
+           </a>
           <button onClick={handleLogout} className="bg-white text-black px-3 py-1 rounded-full border border-gray-400 shadow-sm hover:bg-gray-200">Logout</button>
         </div>
       </div>
