@@ -1,29 +1,32 @@
-from fastapi import FastAPI
+from fastapi import FastAPI 
 from fastapi.middleware.cors import CORSMiddleware
 from app import models, db, auth, preferences, user_data, news_api, rss_parser
 from dotenv import load_dotenv
+
 load_dotenv()
 
+# Create tables from SQLAlchemy models
 models.Base.metadata.create_all(bind=db.engine)
 
 app = FastAPI()
 
+# ✅ CORS Middleware: Allow requests from your frontend domain
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://proud-unity-production.up.railway.app"
-    ],  # ✅ frontend domain
+        "https://proud-unity-production.up.railway.app"  # ✅ Your frontend domain
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # Include routers
 app.include_router(auth.router)
 app.include_router(preferences.router)
 app.include_router(user_data.router)
 
+# News Fetching Route
 @app.get("/news")
 def get_news(page: int = 1, page_size: int = 6, category: str = '', query: str = ''):
     # 1. Fetch from NewsAPI
@@ -52,14 +55,3 @@ def get_news(page: int = 1, page_size: int = 6, category: str = '', query: str =
     paginated = news[start:end]
 
     return { "articles": paginated }
-
-
-    # Handle cases where slicing returns empty
-    if not paginated_news:
-        paginated_news = [{
-            "title": "No more news available.",
-            "url": "#",
-            "image": "https://source.unsplash.com/random"
-        }]
-    
-    return {"articles": paginated_news}
