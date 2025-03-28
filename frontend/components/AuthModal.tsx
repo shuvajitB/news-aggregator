@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useUserContext } from './UserContext';
-import { useRouter } from 'next/router'; // Corrected from 'next/navigation'
+import { useRouter } from 'next/router';  // Make sure this import is correct
 import { Newspaper } from 'lucide-react';
 
 interface AuthModalProps {
@@ -13,10 +13,10 @@ interface AuthModalProps {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 interface Payload {
-  email_phone: string; // Using string, validate format in the input or backend
+  email_phone: string;
   password: string;
   name?: string;
-  dob?: string;  // Using string to match HTML input date format
+  dob?: string;
 }
 
 export default function AuthModal({ type, onClose }: AuthModalProps) {
@@ -37,11 +37,11 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
     };
 
     if (type === 'register') {
-      payload.name = name;       // Include name for registration
-      payload.dob = dob;         // Include date of birth for registration
+      payload.name = name;
+      payload.dob = dob;
     }
 
-    const url = `${API_BASE_URL}/${type}`; // Dynamic backend URL
+    const url = `${API_BASE_URL}/${type}`;
 
     try {
       const res = await fetch(url, {
@@ -112,7 +112,7 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? 'Hide' : 'Show'}
-            </button
+            </button>
           </div>
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
