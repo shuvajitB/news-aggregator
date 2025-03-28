@@ -16,7 +16,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!email) return;
     setLoading(true);
-    fetch(${API_BASE_URL}/preferences?email_phone=${email})
+    fetch(`${API_BASE_URL}/preferences?email_phone=${email}`)
       .then(res => res.json())
       .then(data => setSelected(data.preferences.categories || []))
       .catch(err => console.error('Failed to fetch preferences:', err))
@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const savePreferences = () => {
     if (!email) return;
     setLoading(true);
-    fetch(${API_BASE_URL}/preferences, {
+    fetch(`${API_BASE_URL}/preferences`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email_phone: email, categories: selected }),
@@ -59,11 +59,11 @@ export default function ProfilePage() {
           <button
             key={cat}
             onClick={() => toggleCategory(cat)}
-            className={px-4 py-2 rounded-full border transition ${
+            className={`px-4 py-2 rounded-full border transition ${
               selected.includes(cat)
                 ? 'bg-black text-white border-black'
                 : 'bg-gray-200 text-black border-gray-400'
-            }}
+            }`}
           >
             {cat.toUpperCase()}
           </button>
