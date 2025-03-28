@@ -6,21 +6,40 @@ import { useUserContext } from '../../../components/UserContext';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 const categories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
 
+interface UserProfile {
+  name: string;
+  dob: string;
+  email_phone: string;
+}
+
 export default function ProfilePage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const { user } = useUserContext();
   const email = user?.email || '';
 
+  // Fetch user profile details
   useEffect(() => {
     if (!email) return;
+
     setLoading(true);
+    fetch(`${API_BASE_URL}/profile?email_phone=${email}`)
+      .then(res => res.json())
+      .then(data => setProfile(data))
+      .catch(err => console.error('Failed to fetch profile:', err))
+      .finally(() => setLoading(false));
+  }, [email]);
+
+  // Fetch saved preferences
+  useEffect(() => {
+    if (!email) return;
+
     fetch(`${API_BASE_URL}/preferences?email_phone=${email}`)
       .then(res => res.json())
       .then(data => setSelected(data.preferences.categories || []))
-      .catch(err => console.error('Failed to fetch preferences:', err))
-      .finally(() => setLoading(false));
+      .catch(err => console.error('Failed to fetch preferences:', err));
   }, [email]);
 
   const toggleCategory = (category: string) => {
@@ -48,13 +67,23 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Select Preferred Categories</h2>
+    <div className="p-6 max-w-2xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6 text-center">Your Profile</h2>
 
       {loading && <p className="text-gray-600 mb-2">Loading...</p>}
+
+      {profile && (
+        <div className="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
+          <p><strong>Name:</strong> {profile.name}</p>
+          <p><strong>Email:</strong> {profile.email_phone}</p>
+          <p><strong>Date of Birth:</strong> {profile.dob}</p>
+        </div>
+      )}
+
+      <h3 className="text-xl font-semibold mb-3">Select Preferred Categories</h3>
       {message && <p className="text-sm text-blue-600 mb-4">{message}</p>}
 
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         {categories.map(cat => (
           <button
             key={cat}
