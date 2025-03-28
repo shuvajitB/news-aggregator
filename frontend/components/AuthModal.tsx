@@ -10,7 +10,7 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-// ✅ Get API base URL from environment variable
+// Get API base URL from environment variable
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function AuthModal({ type, onClose }: AuthModalProps) {
@@ -19,20 +19,29 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
 
   const [emailPhone, setEmailPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');       // State for name
+  const [dob, setDob] = useState('');         // State for date of birth
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleAuth = async () => {
-    const url = `${API_BASE_URL}/${type}`; // ✅ Dynamic backend URL
+    const url = `${API_BASE_URL}/${type}`;
 
     try {
+      const payload = {
+        email_phone: emailPhone,
+        password: password
+      };
+
+      if (type === 'register') {
+        payload.name = name;       // Include name for registration
+        payload.dob = dob;         // Include date of birth for registration
+      }
+
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email_phone: emailPhone,
-          password: password
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -59,6 +68,24 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
           <h2 className="text-2xl font-bold mb-4 text-black">
             {type === 'register' ? 'Join Now' : 'Welcome Back!'}
           </h2>
+
+          {type === 'register' && (
+            <>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+              />
+              <input
+                type="date"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </>
+          )}
 
           <input
             type="text"
