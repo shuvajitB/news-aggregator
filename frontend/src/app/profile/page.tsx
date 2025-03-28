@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../../../components/UserContext';
+import { User, Mail, Calendar } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 const categories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
@@ -83,65 +84,84 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-center">Your Profile</h2>
+    <div className="p-8 max-w-4xl mx-auto space-y-10">
+      <h2 className="text-4xl font-bold text-center text-gray-800">Your Profile</h2>
 
-      {loading && <p className="text-gray-600 mb-2">Loading...</p>}
-      {message && <p className="text-sm text-blue-600 mb-4 text-center">{message}</p>}
+      {loading && <p className="text-center text-gray-600">Loading...</p>}
+      {message && <p className="text-center text-blue-600 text-sm">{message}</p>}
 
       {profile && (
-        <div className="bg-white shadow-md rounded-xl p-6 mb-6 border border-gray-200">
-          <label className="block mb-2 font-medium">Name:</label>
-          <input
-            type="text"
-            value={profile.name}
-            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-            className="border px-3 py-2 rounded-md w-full mb-4"
-          />
+        <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <User className="text-blue-600" size={20} /> Personal Info
+          </h3>
 
-          <label className="block mb-2 font-medium">Date of Birth:</label>
-          <input
-            type="date"
-            value={profile.dob}
-            onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
-            className="border px-3 py-2 rounded-md w-full mb-4"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-600">Name</label>
+              <input
+                type="text"
+                value={profile.name}
+                onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
 
-          <p className="text-sm text-gray-500">Email: {profile.email_phone}</p>
+            <div>
+              <label className="text-sm font-medium text-gray-600">Date of Birth</label>
+              <input
+                type="date"
+                value={profile.dob}
+                onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-sm font-medium text-gray-600">Email</label>
+              <div className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100 text-gray-700">
+                {profile.email_phone}
+              </div>
+            </div>
+          </div>
 
           <button
             onClick={saveProfile}
-            className="mt-4 bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow transition"
           >
             Save Profile
           </button>
         </div>
       )}
 
-      <h3 className="text-xl font-semibold mb-3">Select Preferred Categories</h3>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
+        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Calendar className="text-green-600" size={20} /> Your Preferences
+        </h3>
 
-      <div className="flex flex-wrap gap-3 mb-6">
-        {categories.map(cat => (
-          <button
-            key={cat}
-            onClick={() => toggleCategory(cat)}
-            className={`px-4 py-2 rounded-full border transition ${
-              selected.includes(cat)
-                ? 'bg-black text-white border-black'
-                : 'bg-gray-200 text-black border-gray-400'
-            }`}
-          >
-            {cat.toUpperCase()}
-          </button>
-        ))}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => toggleCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm border font-medium transition ${
+                selected.includes(cat)
+                  ? 'bg-black text-white border-black shadow'
+                  : 'bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200'
+              }`}
+            >
+              {cat.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={savePreferences}
+          className="bg-black hover:bg-gray-900 text-white px-6 py-2 rounded-lg shadow transition"
+        >
+          Save Preferences
+        </button>
       </div>
-
-      <button
-        onClick={savePreferences}
-        className="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition"
-      >
-        Save Preferences
-      </button>
     </div>
   );
 }
