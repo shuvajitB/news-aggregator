@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useUserContext } from './UserContext';
-import { useRouter } from 'next/router';  // Make sure this import is correct
+import { useRouter } from 'next/navigation'  // Make sure this import is correct
 import { Newspaper } from 'lucide-react';
 
 interface AuthModalProps {
