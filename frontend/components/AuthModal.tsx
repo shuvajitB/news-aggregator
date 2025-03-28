@@ -37,9 +37,10 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
     };
 
     if (type === 'register') {
-      payload.name = name;
-      payload.dob = dob;
+    payload.name = name;
+    payload.dob = new Date(dob).toISOString().split('T')[0]; // "1997-06-20"
     }
+
 
     const url = `${API_BASE_URL}/${type}`;
 
