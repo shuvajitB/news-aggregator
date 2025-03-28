@@ -15,31 +15,33 @@ def get_db():
     finally:
         db_session.close()
 
-# Request Model for Registration
+# Models
 class UserCreate(BaseModel):
     email_phone: EmailStr
     password: str
     name: str
     dob: date
 
-# Request Model for Login
 class UserLogin(BaseModel):
     email_phone: str
     password: str
 
-# ✅ Response Model for Profile
 class UserProfile(BaseModel):
     email_phone: str
     name: str
     dob: date
 
-# ✅ Request Model for Profile Update
 class UserUpdate(BaseModel):
     email_phone: str
     name: str
     dob: date
 
-# REGISTER ENDPOINT
+class PasswordChangeRequest(BaseModel):
+    email_phone: str
+    old_password: str
+    new_password: str
+
+# Register
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(models.User.email_phone == user.email_phone).first()
@@ -60,7 +62,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return {"message": "User registered successfully"}
 
-# LOGIN ENDPOINT
+# Login
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email_phone == user.email_phone).first()
@@ -72,7 +74,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     return {"message": "Login successful"}
 
-# ✅ PROFILE FETCH ENDPOINT
+# Fetch profile
 @router.get("/profile", response_model=UserProfile)
 def get_profile(email_phone: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email_phone == email_phone).first()
@@ -85,7 +87,7 @@ def get_profile(email_phone: str, db: Session = Depends(get_db)):
         "dob": user.dob
     }
 
-# ✅ PROFILE UPDATE ENDPOINT
+# Update profile
 @router.put("/profile")
 def update_profile(user_update: UserUpdate, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email_phone == user_update.email_phone).first()
@@ -99,3 +101,17 @@ def update_profile(user_update: UserUpdate, db: Session = Depends(get_db)):
     db.refresh(user)
 
     return {"message": "Profile updated successfully"}
+
+# Change password
+@router.put("/change-password")
+def change_password(data: PasswordChangeRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email_phone == data.email_phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not bcrypt.verify(data.old_password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect current password")
+
+    user.hashed_password = bcrypt.hash(data.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}
