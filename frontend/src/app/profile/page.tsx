@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../../../components/UserContext';
-import { User, Mail, Calendar } from 'lucide-react';
+import { User, Mail, Calendar, Lock } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 const categories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
@@ -21,10 +21,12 @@ export default function ProfilePage() {
   const { user } = useUserContext();
   const email = user?.email || '';
 
-  // Fetch user profile details
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   useEffect(() => {
     if (!email) return;
-
     setLoading(true);
     fetch(`${API_BASE_URL}/profile?email_phone=${email}`)
       .then(res => res.json())
@@ -33,10 +35,8 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, [email]);
 
-  // Fetch saved preferences
   useEffect(() => {
     if (!email) return;
-
     fetch(`${API_BASE_URL}/preferences?email_phone=${email}`)
       .then(res => res.json())
       .then(data => setSelected(data.preferences.categories || []))
@@ -81,6 +81,35 @@ export default function ProfilePage() {
       })
       .catch(() => setMessage('Failed to update profile.'))
       .finally(() => setLoading(false));
+  };
+
+  const handlePasswordChange = () => {
+    if (newPassword !== confirmPassword) {
+      setMessage('New passwords do not match');
+      return;
+    }
+
+    fetch(`${API_BASE_URL}/change-password`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email_phone: email,
+        old_password: oldPassword,
+        new_password: newPassword,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.detail) {
+          setMessage(data.detail);
+        } else {
+          setMessage('Password updated successfully!');
+          setOldPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+        }
+      })
+      .catch(() => setMessage('Something went wrong.'));
   };
 
   return (
@@ -161,6 +190,43 @@ export default function ProfilePage() {
         >
           Save Preferences
         </button>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
+        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+          <Lock className="text-purple-600" size={20} /> Change Password
+        </h3>
+
+        <div className="space-y-4 max-w-md">
+          <input
+            type="password"
+            placeholder="Current Password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          <input
+            type="password"
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+          <input
+            type="password"
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-2 border rounded-lg"
+          />
+
+          <button
+            onClick={handlePasswordChange}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg shadow"
+          >
+            Update Password
+          </button>
+        </div>
       </div>
     </div>
   );
