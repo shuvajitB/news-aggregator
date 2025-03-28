@@ -35,8 +35,6 @@ export default function NewsList() {
   const [userEmail, setUserEmail] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
 
-  const [filterCategories, setFilterCategories] = useState<string[]>([]);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const allCategories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
 
   const articlesPerLoad = 6;
@@ -70,15 +68,6 @@ export default function NewsList() {
         .catch(() => setUserPreferences([]));
     }
   }, [userEmail]);
-
-  const toggleFilterCategory = (cat: string) => {
-    const updated = filterCategories.includes(cat)
-      ? filterCategories.filter(c => c !== cat)
-      : [...filterCategories, cat];
-    setFilterCategories(updated);
-    localStorage.setItem('filterCategories', JSON.stringify(updated));
-    fetchArticles(1, false);
-  };
 
   const fetchArticles = useCallback(async (pageNum = 1, append = false) => {
     setLoading(true);
@@ -237,33 +226,6 @@ export default function NewsList() {
           <input type="text" placeholder="Search news..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={`w-56 p-1.5 border rounded-full text-sm ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} />
           <button type="submit" className="bg-black text-white text-sm px-4 py-1.5 rounded-full hover:bg-gray-800 transition">Search</button>
         </form>
-
-        {/* ✅ Filter Dropdown */}
-        <div className="relative ml-4">
-          <button
-            type="button"
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="bg-gray-100 px-3 py-1.5 rounded-full text-sm border shadow-sm flex items-center space-x-1 hover:bg-gray-200"
-          >
-            <span>Filter</span>
-            <ChevronDown size={14} />
-          </button>
-          {showFilterDropdown && (
-            <div className="absolute mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-3 space-y-2">
-              {allCategories.map((cat) => (
-                <label key={cat} className="flex items-center space-x-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filterCategories.includes(cat)}
-                    onChange={() => toggleFilterCategory(cat)}
-                    className="accent-black"
-                  />
-                  <span>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* Dark Mode Toggle */}
         <label className="flex items-center cursor-pointer ml-4">
