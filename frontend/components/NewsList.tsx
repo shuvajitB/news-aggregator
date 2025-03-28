@@ -34,6 +34,7 @@ export default function NewsList() {
   const [userPreferences, setUserPreferences] = useState<string[]>([]);
   const [userEmail, setUserEmail] = useState('');
   const [hasMounted, setHasMounted] = useState(false);
+  const [filterCategories, setFilterCategories] = useState<string[]>([]);
 
   const allCategories = ['business', 'sports', 'entertainment', 'science', 'technology', 'health'];
 
