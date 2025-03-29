@@ -113,61 +113,57 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-10">
-      <h2 className="text-4xl font-bold text-center text-gray-800">Your Profile</h2>
+    <div className="p-6 sm:p-10 max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-lg">
+      <h2 className="text-4xl font-bold text-center text-gray-800 mb-2">👤 My Profile</h2>
+      {loading && <p className="text-center text-gray-500">Loading...</p>}
+      {message && <p className="text-center text-sm text-blue-600">{message}</p>}
 
-      {loading && <p className="text-center text-gray-600">Loading...</p>}
-      {message && <p className="text-center text-blue-600 text-sm">{message}</p>}
-
+      {/* Profile Info */}
       {profile && (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <User className="text-blue-600" size={20} /> Personal Info
+        <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+          <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-blue-700">
+            <User size={20} /> Account Details
           </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-sm font-medium text-gray-600">Name</label>
+              <label className="text-sm text-gray-600">Name</label>
               <input
                 type="text"
                 value={profile.name}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
             <div>
-              <label className="text-sm font-medium text-gray-600">Date of Birth</label>
+              <label className="text-sm text-gray-600">Date of Birth</label>
               <input
                 type="date"
                 value={profile.dob}
                 onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
-                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400"
               />
             </div>
-
             <div className="md:col-span-2">
-              <label className="text-sm font-medium text-gray-600">Email</label>
-              <div className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100 text-gray-700">
+              <label className="text-sm text-gray-600">Email</label>
+              <div className="mt-1 px-4 py-2 border bg-gray-100 rounded-lg text-gray-700">
                 {profile.email_phone}
               </div>
             </div>
           </div>
-
           <button
             onClick={saveProfile}
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow transition"
           >
             Save Profile
           </button>
-        </div>
+        </section>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="text-green-600" size={20} /> Your Preferences
+      {/* Preferences */}
+      <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+        <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-green-700">
+          <Calendar size={20} /> News Preferences
         </h3>
-
         <div className="flex flex-wrap gap-3 mb-6">
           {categories.map(cat => (
             <button
@@ -183,20 +179,19 @@ export default function ProfilePage() {
             </button>
           ))}
         </div>
-
         <button
           onClick={savePreferences}
           className="bg-black hover:bg-gray-900 text-white px-6 py-2 rounded-lg shadow transition"
         >
           Save Preferences
         </button>
-      </div>
+      </section>
 
-      <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Lock className="text-purple-600" size={20} /> Change Password
+      {/* Change Password */}
+      <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+        <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-purple-700">
+          <Lock size={20} /> Change Password
         </h3>
-
         <div className="space-y-4 max-w-md">
           <input
             type="password"
@@ -219,7 +214,6 @@ export default function ProfilePage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg"
           />
-
           <button
             onClick={handlePasswordChange}
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg shadow"
@@ -227,7 +221,7 @@ export default function ProfilePage() {
             Update Password
           </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
