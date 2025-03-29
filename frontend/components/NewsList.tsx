@@ -195,7 +195,7 @@ export default function NewsList() {
   }
 
   return (
-    <div className={`${darkMode ? 'bg-black text-white' : 'bg-white text-black'} min-h-screen transition-all`}>
+    <div className={`${darkMode ? 'bg-black text-white' : 'bg-white text-black'} min-h-screen`}>
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white/20 dark:bg-black/20 backdrop-blur border-b border-gray-300 px-6 py-3 flex justify-between items-center shadow-md">
         <a href="/" className="flex items-center space-x-2">
