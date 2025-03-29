@@ -113,14 +113,14 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 sm:p-10 max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-gray-50 to-white rounded-xl shadow-lg">
-      <h2 className="text-4xl font-bold text-center text-gray-800 mb-2">👤 My Profile</h2>
+    <div className="p-6 sm:p-10 max-w-5xl mx-auto space-y-12 bg-gradient-to-br from-gray-100 via-white to-gray-50 rounded-xl shadow-xl backdrop-blur-xl">
+      <h2 className="text-4xl font-bold text-center text-gray-800 mb-4">👤 My Profile</h2>
       {loading && <p className="text-center text-gray-500">Loading...</p>}
       {message && <p className="text-center text-sm text-blue-600">{message}</p>}
 
       {/* Profile Info */}
       {profile && (
-        <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+        <section className="bg-white/70 backdrop-blur-md border border-gray-100 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all">
           <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-blue-700">
             <User size={20} /> Account Details
           </h3>
@@ -160,7 +160,7 @@ export default function ProfilePage() {
       )}
 
       {/* Preferences */}
-      <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+      <section className="bg-white/70 backdrop-blur-md border border-gray-100 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all">
         <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-green-700">
           <Calendar size={20} /> News Preferences
         </h3>
@@ -187,8 +187,8 @@ export default function ProfilePage() {
         </button>
       </section>
 
-      {/* Change Password */}
-      <section className="bg-white border border-gray-100 rounded-lg p-6 shadow-md">
+      {/* Password Change */}
+      <section className="bg-white/70 backdrop-blur-md border border-gray-100 rounded-2xl p-6 shadow-md hover:shadow-lg transition-all">
         <h3 className="text-xl font-semibold mb-6 flex items-center gap-2 text-purple-700">
           <Lock size={20} /> Change Password
         </h3>
