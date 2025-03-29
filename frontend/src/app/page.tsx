@@ -32,7 +32,7 @@ export default function Home() {
           </div>
         </div>
 
-        <h1 className="text-4xl font-bold mb-4 text-gray-900">Stay Informed</h1>
+        <h1 className="text-4xl font-bold mb-4 text-gray-900">Personalised News Aggregator</h1>
         <p className="text-gray-800 mb-8 text-sm font-medium">
           Reliable daily news tailored just for you.
         </p>
