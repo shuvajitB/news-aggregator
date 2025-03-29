@@ -215,7 +215,7 @@ export default function NewsList() {
           <span className="font-bold text-xl">News Aggregator</span>
         </a>
         <div className="flex items-center gap-4">
-          <a href="/profile" title="Profile" className="rounded-full border px-3 py-1 hover:bg-white/40 transition">🐱</a>
+          <a href="/profile" title="Profile" className="rounded-full border px-3 py-1 hover:bg-white/40 transition">👤</a>
           <button onClick={handleLogout} className="rounded-full border px-4 py-1 hover:bg-white/40 transition">Logout</button>
         </div>
       </div>
