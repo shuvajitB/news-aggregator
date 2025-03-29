@@ -195,7 +195,7 @@ export default function NewsList() {
   }
 
   return (
-    <div className={`${darkMode ? 'bg-black text-white' : 'bg-white text-black'} min-h-screen transition-all duration-500 ease-in-out`}>
+    <div className={`${darkMode ? 'bg-black text-white' : 'bg-white text-black'} min-h-screen transition-all`}>
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white/20 dark:bg-black/20 backdrop-blur border-b border-gray-300 px-6 py-3 flex justify-between items-center shadow-md">
         <a href="/" className="flex items-center space-x-2">
@@ -209,14 +209,14 @@ export default function NewsList() {
       </div>
 
       {/* Search + Filters */}
-      <div className="px-6 py-4 bg-white/30 dark:bg-white/10 backdrop-blur-lg rounded-xl mx-4 mt-6 shadow flex flex-wrap justify-between items-center gap-4">
+      <div className="px-6 py-4 flex flex-wrap justify-between items-center gap-4">
         <form onSubmit={handleSearch} className="flex gap-2 w-full md:w-auto">
           <input
             type="text"
             placeholder="Search news..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 rounded-full bg-white/60 dark:bg-black/30 backdrop-blur border border-gray-300 dark:border-gray-600 outline-none text-sm w-full md:w-64"
+            className="px-4 py-2 rounded-full bg-white/60 dark:bg-black/30 border text-sm w-full md:w-64"
           />
           <button type="submit" className="px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800 text-sm">Search</button>
         </form>
