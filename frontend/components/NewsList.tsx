@@ -273,22 +273,54 @@ export default function NewsList() {
                     <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-500 text-white">Preferred</span>
                   )}
                 </h2>
+              
                 {article.category && (
-                  <p className="text-xs text-gray-300 dark:text-gray-400 mb-2">
+                  <p className={`text-xs mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     Category: <span className="capitalize">{article.category}</span>
                   </p>
                 )}
-                <div className="flex space-x-4 mb-2 text-white/80">
-                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(article.url)}`} target="_blank" rel="noopener noreferrer"><FaFacebookF size={16} /></a>
-                  <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(article.url)}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer"><FaTwitter size={16} /></a>
-                  <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + article.url)}`} target="_blank" rel="noopener noreferrer"><FaWhatsapp size={16} /></a>
-                  <button onClick={() => navigator.clipboard.writeText(article.url)}><Share2 size={16} /></button>
+              
+                <div className={`flex space-x-4 mb-2 ${darkMode ? 'text-white/80' : 'text-gray-700'}`}>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(article.url)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaFacebookF size={16} />
+                  </a>
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(article.url)}&text=${encodeURIComponent(article.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaTwitter size={16} />
+                  </a>
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(article.title + ' ' + article.url)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaWhatsapp size={16} />
+                  </a>
+                  <button onClick={() => navigator.clipboard.writeText(article.url)} title="Copy Link">
+                    <Share2 size={16} />
+                  </button>
                   <button onClick={() => handleBookmark(article)} title="Bookmark">
-                    <FaBookmark size={16} color={bookmarks.find(b => b.url === article.url) ? '#FFD700' : 'gray'} />
+                    <FaBookmark size={16} color={bookmarks.find(b => b.url === article.url) ? '#FFD700' : darkMode ? 'white' : 'gray'} />
                   </button>
                 </div>
-                <a href={article.url} target="_blank" rel="noopener noreferrer" onClick={() => handleReadHistory(article)} className="hover:underline text-white">Read More</a>
+              
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleReadHistory(article)}
+                  className={`hover:underline font-medium ${darkMode ? 'text-white' : 'text-black'}`}
+                >
+                  Read More
+                </a>
               </div>
+
             </div>
           ))}
         </div>
