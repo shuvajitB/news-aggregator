@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useUserContext } from './UserContext';
 import { useRouter } from 'next/navigation';
 import { FaFacebookF, FaTwitter, FaWhatsapp, FaBookmark } from 'react-icons/fa';
-import { Share2, Newspaper, ChevronDown } from 'lucide-react';
+import { Share2, Newspaper } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -207,77 +207,60 @@ export default function NewsList() {
   }
 
   return (
-    <div className={`${darkMode ? 'bg-black' : 'bg-white'} text-black min-h-screen`}>
-      {/* HEADER */}
-      <div className="flex justify-between items-center p-4 sticky top-0 bg-opacity-90 backdrop-blur-md z-50 border-b border-gray-300">
-        <a href="/" className="hover:opacity-80 transition flex items-center space-x-2">
-          <Newspaper size={30} className={`${darkMode ? 'text-white' : 'text-black'}`} />
-          <span className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-black'}`}>News Aggregator</span>
+    <div className={`${darkMode ? 'bg-gradient-to-br from-black via-gray-900 to-black text-white' : 'bg-gradient-to-br from-white via-slate-100 to-white text-black'} min-h-screen transition duration-500`}>
+      {/* Glassy Header */}
+      <div className="sticky top-0 z-50 bg-white/30 dark:bg-black/30 backdrop-blur-md border-b border-gray-300 dark:border-gray-700 px-6 py-3 flex justify-between items-center shadow-sm">
+        <a href="/" className="flex items-center space-x-2">
+          <Newspaper size={30} />
+          <span className="font-bold text-xl">News Aggregator</span>
         </a>
-
-        <div className="flex items-center space-x-4">
-          <a href="/profile" title="Profile">
-          <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-400 text-xl hover:shadow hover:scale-105 transition-all">
-          🐱
-          </div>
-           </a>
-          <button onClick={handleLogout} className="bg-white text-black px-3 py-1 rounded-full border border-gray-400 shadow-sm hover:bg-gray-200">Logout</button>
+        <div className="flex items-center gap-4">
+          <a href="/profile" title="Profile" className="rounded-full border px-3 py-1 hover:bg-white/40 transition">🐱</a>
+          <button onClick={handleLogout} className="rounded-full border px-4 py-1 hover:bg-white/40 transition">Logout</button>
         </div>
       </div>
 
-      {/* Search, Filter, Dark Mode */}
-      <div className="flex justify-between items-center px-4 mt-6 mb-4">
-        <form onSubmit={handleSearch} className="flex items-center space-x-2">
-          <input type="text" placeholder="Search news..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={`w-56 p-1.5 border rounded-full text-sm ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} />
-          <button type="submit" className="bg-black text-white text-sm px-4 py-1.5 rounded-full hover:bg-gray-800 transition">Search</button>
+      {/* Search + Filter Controls */}
+      <div className="px-6 py-4 bg-white/20 dark:bg-white/10 backdrop-blur rounded-xl mx-4 mt-6 shadow-md flex flex-wrap justify-between items-center gap-4">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search news..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 rounded-full bg-white/60 dark:bg-black/40 backdrop-blur border border-gray-300 dark:border-gray-700 outline-none text-sm"
+          />
+          <button type="submit" className="px-4 py-2 rounded-full bg-black text-white hover:bg-gray-800 text-sm">Search</button>
         </form>
-
-        {/* Dark Mode Toggle */}
-        <label className="flex items-center cursor-pointer ml-4">
-          <div className="relative">
-            <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only" />
-            <div className="block bg-gray-600 w-10 h-6 rounded-full"></div>
-            <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition ${darkMode ? 'translate-x-4' : ''}`}></div>
+        <label className="flex items-center cursor-pointer">
+          <span className="mr-2 text-sm">🌙</span>
+          <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only" />
+          <div className="w-10 h-5 bg-gray-400 rounded-full relative">
+            <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition ${darkMode ? 'translate-x-5' : ''}`}></div>
           </div>
         </label>
       </div>
 
-      {/* Category + Preferred + Bookmark buttons */}
-      <div className="flex flex-wrap gap-3 px-4 mb-4">
-        {['', 'business', 'sports', 'entertainment', 'science', 'technology', 'health'].map(cat => (
+      {/* Category Filters */}
+      <div className="flex flex-wrap gap-2 px-6 py-4">
+        {[ '', ...allCategories ].map(cat => (
           <button
             key={cat}
             onClick={() => handleCategoryChange(cat)}
-            className={`px-3 py-1 rounded-full text-sm border shadow-sm transition-all ${
-              selectedCategory === cat && !preferredMode
-                ? 'bg-black text-white border-black hover:bg-gray-800'
-                : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-1 rounded-full text-sm border transition backdrop-blur-sm ${selectedCategory === cat && !preferredMode ? 'bg-black text-white border-black' : 'bg-white/50 dark:bg-white/20 text-black dark:text-white border-gray-300 dark:border-gray-600 hover:bg-white/60 dark:hover:bg-white/30'}`}
           >
             {cat === '' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
         ))}
-
         <button
-          onClick={() => {
-            setPreferredMode(true);
-            setSelectedCategory('');
-          }}
-          className={`px-3 py-1 rounded-full text-sm border shadow-sm transition-all ${
-            preferredMode
-              ? 'bg-black text-white border-black hover:bg-gray-800'
-              : 'bg-gray-100 text-black border-gray-300 hover:bg-gray-200'
-          }`}
+          onClick={() => { setPreferredMode(true); setSelectedCategory(''); }}
+          className={`px-4 py-1 rounded-full text-sm border transition backdrop-blur-sm ${preferredMode ? 'bg-black text-white border-black' : 'bg-white/50 dark:bg-white/20 text-black dark:text-white border-gray-300 dark:border-gray-600 hover:bg-white/60 dark:hover:bg-white/30'}`}
         >
           Preferred
         </button>
-
         <button
-          onClick={() => {
-            setPreferredMode(false);
-            setViewBookmarks(!viewBookmarks);
-          }}
-          className="px-3 py-1 rounded-full border shadow-sm text-sm hover:bg-gray-200"
+          onClick={() => { setPreferredMode(false); setViewBookmarks(!viewBookmarks); }}
+          className="px-4 py-1 rounded-full text-sm border transition backdrop-blur-sm bg-white/50 dark:bg-white/20 hover:bg-white/70 dark:hover:bg-white/30"
         >
           {viewBookmarks ? 'View All News' : 'View Bookmarks'}
         </button>
