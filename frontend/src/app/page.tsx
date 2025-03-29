@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Newspaper } from 'lucide-react';
 import AuthModal from '../../components/AuthModal';
 
 export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState<'login' | 'register'>('login');
+
+  const fullTitle = 'Personalized News Aggregator';
   const [typedTitle, setTypedTitle] = useState('');
-  const fullTitle = 'Personalised News Aggregator';
 
   useEffect(() => {
     let index = 0;
@@ -16,7 +17,7 @@ export default function Home() {
       setTypedTitle(fullTitle.slice(0, index + 1));
       index++;
       if (index === fullTitle.length) clearInterval(interval);
-    }, 100);
+    }, 70);
     return () => clearInterval(interval);
   }, []);
 
@@ -34,7 +35,7 @@ export default function Home() {
       }}
     >
       {/* Overlay */}
-      <div className="absolute inset-0 bg-white/80 backdrop-blur-[3px] z-0"></div>
+      <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-0"></div>
 
       {/* Card */}
       <div className="relative z-10 text-center max-w-lg bg-white/30 backdrop-blur-lg rounded-3xl border border-white/30 shadow-2xl p-10 animate-fade-in">
@@ -44,17 +45,17 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Typing Animation Title */}
-        <h1 className="text-4xl font-bold mb-4 text-gray-900 min-h-[48px]">
+        {/* Typing Title */}
+        <h1 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900 min-h-[48px] tracking-tight">
           {typedTitle}
           <span className="blinking-cursor">|</span>
         </h1>
 
         <p className="text-gray-800 mb-8 text-sm font-medium">
-          Reliable daily news tailored just for you.
+          Your daily headlines, simplified and beautifully presented.
         </p>
 
-        {/* Glowing Buttons */}
+        {/* Buttons */}
         <div className="flex justify-center gap-6">
           <button
             onClick={() => openModal('login')}
@@ -74,22 +75,22 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Modal */}
-      {showModal && <AuthModal type={modalType} onClose={() => setShowModal(false)} />)}
+      {showModal && <AuthModal type={modalType} onClose={() => setShowModal(false)} />}
 
-      {/* Extra styles */}
+      <footer className="relative z-10 mt-16 text-sm text-gray-500">
+        © 2025 News Aggregator. All rights reserved.
+      </footer>
+
       <style jsx>{`
         .blinking-cursor {
           font-weight: 300;
           color: #555;
           animation: blink 1s infinite;
         }
-
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
         }
-
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -100,7 +101,6 @@ export default function Home() {
             transform: translateY(0);
           }
         }
-
         .animate-fade-in {
           animation: fade-in 0.8s ease-out;
         }
