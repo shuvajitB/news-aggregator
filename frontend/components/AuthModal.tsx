@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useUserContext } from './UserContext';
-import { useRouter } from 'next/navigation'  // Make sure this import is correct
+import { useRouter } from 'next/navigation';
 import { Newspaper } from 'lucide-react';
 
 interface AuthModalProps {
@@ -37,10 +37,9 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
     };
 
     if (type === 'register') {
-    payload.name = name;
-    payload.dob = new Date(dob).toISOString().split('T')[0]; // "1997-06-20"
+      payload.name = name;
+      payload.dob = new Date(dob).toISOString().split('T')[0];
     }
-
 
     const url = `${API_BASE_URL}/${type}`;
 
@@ -66,15 +65,15 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn">
       <div className="flex flex-col items-center">
         <div className="mb-4">
-          <Newspaper size={50} className="text-white" />
+          <Newspaper size={50} className="text-white drop-shadow" />
         </div>
-        <div className="bg-white rounded-2xl shadow-lg p-8 w-96 text-center relative">
-          <h2 className="text-2xl font-bold mb-4 text-black">
-            {type === 'register' ? 'Join Now' : 'Welcome Back!'}
-          </h2>
+
+        <div className="relative bg-white/20 backdrop-blur-md border border-white/30 shadow-xl text-white rounded-2xl p-8 w-96 transition-all duration-300">
+          <h2 className="text-2xl font-bold mb-6">{type === 'register' ? 'Join Now' : 'Welcome Back!'}</h2>
+
           {type === 'register' && (
             <>
               <input
@@ -82,54 +81,90 @@ export default function AuthModal({ type, onClose }: AuthModalProps) {
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+                className="input-style"
               />
               <input
                 type="date"
                 value={dob}
                 onChange={(e) => setDob(e.target.value)}
-                className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+                className="input-style"
               />
             </>
           )}
+
           <input
             type="text"
             placeholder="Email or Phone"
             value={emailPhone}
             onChange={(e) => setEmailPhone(e.target.value)}
-            className="border p-3 rounded-lg mb-4 w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+            className="input-style"
           />
+
           <div className="relative mb-4">
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border p-3 rounded-lg w-full text-black focus:outline-none focus:ring-2 focus:ring-black"
+              className="input-style pr-16"
             />
             <button
               type="button"
-              className="absolute right-3 top-3 text-sm text-gray-500"
+              className="absolute right-3 top-3 text-sm text-gray-200 hover:text-white"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+
+          {error && <p className="text-red-400 mb-3">{error}</p>}
+
           <button
             onClick={handleAuth}
-            className="bg-black text-white px-4 py-2 rounded-full w-full mb-2 hover:bg-gray-800 transition"
+            className="w-full py-2 mb-3 rounded-full bg-black/80 text-white hover:bg-black transition-all shadow hover:shadow-lg hover:scale-[1.02]"
           >
             {type === 'register' ? 'Register' : 'Login'}
           </button>
+
           <button
             onClick={onClose}
-            className="absolute top-2 right-4 text-gray-500 hover:text-black text-xl"
+            className="absolute top-3 right-5 text-white text-2xl hover:scale-125 transition"
           >
-            ×
+            &times;
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        .input-style {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: white;
+          padding: 0.75rem 1rem;
+          width: 100%;
+          margin-bottom: 1rem;
+          border-radius: 0.75rem;
+          outline: none;
+          transition: all 0.3s ease;
+        }
+        .input-style:focus {
+          border-color: white;
+          background: rgba(255, 255, 255, 0.2);
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
