@@ -10,11 +10,11 @@ models.Base.metadata.create_all(bind=db.engine)
 
 app = FastAPI()
 
-# ✅ CORS Middleware: Allow requests from your frontend domain
+# CORS Middleware: Allow requests from frontend domain
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://proud-unity-production.up.railway.app"  # ✅ Your frontend domain
+        "https://proud-unity-production.up.railway.app"  # frontend domain
     ],
     allow_credentials=True,
     allow_methods=["*"],
