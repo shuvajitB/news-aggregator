@@ -32,18 +32,18 @@ def fetch_newsapi_articles(category="", query=""):
     try:
         response = requests.get(base_url)
         if response.status_code == 429:
-            print("⚠️  NewsAPI Rate Limit Reached (429) — switching to RSS fallback")
+            print("NewsAPI Rate Limit Reached (429) — switching to RSS fallback")
             return []
 
         response.raise_for_status()
         data = response.json()
 
         if "articles" not in data:
-            print("⚠️  NewsAPI response missing 'articles'")
+            print("NewsAPI response missing 'articles'")
             return []
 
         articles = data["articles"]
-        print(f"✅ Fetched {len(articles)} NewsAPI articles (Category: {category or 'inferred'})")
+        print(f"Fetched {len(articles)} NewsAPI articles (Category: {category or 'inferred'})")
 
         results = []
         for art in articles:
@@ -68,5 +68,5 @@ def fetch_newsapi_articles(category="", query=""):
         return results
 
     except requests.exceptions.RequestException as e:
-        print(f"❌ NewsAPI Fetch Error: {e}")
+        print(f"NewsAPI Fetch Error: {e}")
         return []
